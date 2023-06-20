@@ -12,26 +12,23 @@ constexpr int DEPTH = 24;		// color depth in bits;
 
 typedef char color[CHANNELS];
 
-__device__ void shader(color* out, int x, int y)
+__device__ void shader(color& out, int x, int y)
 {
-	// convert 3-char ptr ot single-char ptr
-	char* ptr = (char*)out;
-
 	// calculate color (same for each channel)
 	char color = 255 / 3 * 2;
 
 	// apply same color on each channel
 	for (int i = 0; i < CHANNELS; ++i)
 	{
-		ptr[i] = color;
+		out[i] = color;
 	}
 }
 
 __global__ void applyShader(color* data)
 {
 	int i = threadIdx.x;
-		
-	shader(data + i, i, i);
+
+	shader(data[i], i, i);
 }
 
 int main()
