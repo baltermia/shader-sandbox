@@ -32,8 +32,5 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bitmap\Bitmap.cpp">
-      <Filter>Source Files\Bitmap</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
