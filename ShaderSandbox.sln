@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FileOutput", "FileOutput", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCL", "FileOutput\OpenCL\OpenCL.vcxproj", "{8DF8BE3F-BF93-4E28-B19B-A465136409F7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "FileOutput\Shared\Shared.vcxproj", "{A858422E-6B30-4339-973C-9731FD579AA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,6 +35,14 @@ Global
 		{8DF8BE3F-BF93-4E28-B19B-A465136409F7}.Release|x64.Build.0 = Release|x64
 		{8DF8BE3F-BF93-4E28-B19B-A465136409F7}.Release|x86.ActiveCfg = Release|Win32
 		{8DF8BE3F-BF93-4E28-B19B-A465136409F7}.Release|x86.Build.0 = Release|Win32
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Debug|x64.ActiveCfg = Debug|x64
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Debug|x64.Build.0 = Debug|x64
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Debug|x86.ActiveCfg = Debug|Win32
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Debug|x86.Build.0 = Debug|Win32
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Release|x64.ActiveCfg = Release|x64
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Release|x64.Build.0 = Release|x64
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Release|x86.ActiveCfg = Release|Win32
+		{A858422E-6B30-4339-973C-9731FD579AA5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -40,6 +50,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{99B6DD27-42D2-4ACE-8F9B-F4A35BE23EFB} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
 		{8DF8BE3F-BF93-4E28-B19B-A465136409F7} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
+		{A858422E-6B30-4339-973C-9731FD579AA5} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BDBD7309-7182-4AB3-A1D2-9FA62C45C42D}
