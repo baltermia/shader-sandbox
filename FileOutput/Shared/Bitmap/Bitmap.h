@@ -9,6 +9,7 @@ class Bitmap
 {
 	static const std::string s_extension;
 
+	std::string m_path;
 	const char* m_data;
 	char* m_header;
 
