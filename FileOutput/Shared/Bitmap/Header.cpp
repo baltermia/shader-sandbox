@@ -1,8 +1,6 @@
 // bitmap header docs: https://docs.fileformat.com/image/bmp/
 // https://dev.to/muiz6/c-how-to-write-a-bitmap-image-from-scratch-1k6m
 
-#include "..\pch.h"
-
 #include <cstdint>
 
 struct BitmapHeader
