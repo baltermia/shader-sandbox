@@ -35,7 +35,7 @@
     <ClCompile Include="Bitmap\Bitmap.cpp">
       <Filter>Source Files\Bitmap</Filter>
     </ClCompile>
-    <ClCompile Include="Bitmap\Header.cpp">
+    <ClCompile Include="Bitmap\Header.hpp">
       <Filter>Source Files\Bitmap</Filter>
     </ClCompile>
   </ItemGroup>
