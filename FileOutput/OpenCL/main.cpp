@@ -60,8 +60,10 @@ cl_program build_program(cl_context context, cl_device_id device_id, const char*
 	// to check for errorss
 	int err;
 
+	const char* ptr = program_buffer.data();
+
 	// create new program with buffer
-	cl_program program = clCreateProgramWithSource(context, 1, (const char**)&program_buffer, &program_size, &err);
+	cl_program program = clCreateProgramWithSource(context, 1, (const char**)&ptr, &program_size, &err);
 
 	// build program
 	err = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
