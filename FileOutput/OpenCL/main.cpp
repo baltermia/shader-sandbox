@@ -1,6 +1,133 @@
 #include <stdio.h>
+#include <CL/cl.h>
+#include <fstream>
+#include <vector>
+
+constexpr int WIDTH = 640;		// number of pixels on x-axis;
+constexpr int HEIGHT = 360;		// number of pixels on y-axis;
+constexpr int DEPTH = 24;		// color depth in bits;
+
+#define SIZE		HEIGHT * WIDTH	// total image pixels
+#define BITS		SIZE * DEPTH	// total image size in bits
+#define BYTES		BITS / 8		// total image size in bytes
+#define CHANNELS	DEPTH / 8		// number of bytes per color
+
+/// <summary>
+/// Try and create a device. Prefferably GPU over CPU
+/// </summary>
+cl_device_id create_device()
+{
+	cl_platform_id platform;
+	cl_device_id dev;
+
+	// to check for errors
+	int err;
+
+	// Identify platform
+	err = clGetPlatformIDs(1, &platform, NULL);
+
+	// Try to access a GPU
+	err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &dev, NULL);
+
+	// If no GPU could be found, use CUP
+	if (err == CL_DEVICE_NOT_FOUND)
+		err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &dev, NULL);
+
+	return dev;
+}
+
+/// <summary>
+/// Create program from a file and compile it
+/// </summary>
+cl_program build_program(cl_context context, cl_device_id device_id, const char* filename)
+{
+	// Load file
+	std::ifstream file(filename);
+
+	// Seek to end of file.
+	file.seekg(0, std::ios_base::end);
+
+	// get file-size
+	size_t program_size = file.tellg();
+
+	// go to beginning
+	file.seekg(0);
+
+	// read file into memory
+	std::vector<char> program_buffer(program_size);
+	file.read(program_buffer.data(), program_size);
+
+	// to check for errorss
+	int err;
+
+	// create new program with buffer
+	cl_program program = clCreateProgramWithSource(context, 1, (const char**)&program_buffer, &program_size, &err);
+
+	// build program
+	err = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+
+	if (err >= 0)
+		return program;
+
+	// if build is not successful, print the build-info to the console
+
+	size_t log_size;
+	// first get size of log-text
+	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+
+	// then allocate memory of that size
+	char* program_log = new char[log_size];
+	// get that memory
+	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, log_size + 1, program_log, NULL);
+
+	// finally print it to the console
+	printf("%s\n", program_log);
+
+	// and free the memory
+	delete[] program_log;
+
+	exit(1);
+}
 
 int main()
 {
+	cl_device_id device_id = create_device();
 
+	// to check for errorss
+	int err;
+
+	cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
+
+	cl_program program = build_program(context, device_id, "kernel.cl");
+
+	// allocate heap memory the size of the devices memory
+	char* out = new char[BYTES];
+
+	// create output buffer in which the kernel writes and the host copies out of
+	cl_mem out_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BYTES, out, &err);
+
+	cl_command_queue command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
+
+	cl_kernel kernel = clCreateKernel(program, "apply_shader", &err);
+
+	// set output-buffer as argument (index 0)
+	err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &out_buffer);
+
+	size_t global_size = BYTES;
+	size_t local_size = 64; // divide work ino blocks of 64
+
+	// this executes the kernel code
+	err = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
+
+	// read device memory into heap memory
+	err = clEnqueueReadBuffer(command_queue, out_buffer, CL_TRUE, 0, BYTES, out, 0, NULL, NULL);
+
+	// Deallocate
+	clReleaseKernel(kernel);
+	clReleaseMemObject(out_buffer);
+	clFlush(command_queue);
+	clFinish(command_queue);
+	clReleaseCommandQueue(command_queue);
+	clReleaseProgram(program);
+	clReleaseContext(context);
 }
