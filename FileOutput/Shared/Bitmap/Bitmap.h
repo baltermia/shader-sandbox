@@ -13,7 +13,7 @@ class Bitmap
 
 	std::string m_path;
 	char* m_data;
-	BitmapHeader m_header;
+	BitmapHeader* m_header;
 
 public:
 	/// <summary>
@@ -38,7 +38,7 @@ public:
 	/// <summary>
 	/// The header data of the bitmap file, generated from the given data
 	/// </summary>
-	const BitmapHeader& header() const;
+	const BitmapHeader* header() const;
 
 	/// <summary>
 	/// Tries to read data from the given path
