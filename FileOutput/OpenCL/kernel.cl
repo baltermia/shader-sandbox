@@ -4,7 +4,7 @@ __kernel void apply_shader(__global char* data)
 
 	__global char* curr = &data[i * 3];
 
-	*++curr = convert_char(0xAAAAAA);
-	*++curr = convert_char(0xAAAAAA);
 	*curr = convert_char(0xAAAAAA);
+	*++curr = convert_char(0xAAAAAA);
+	*++curr = convert_char(0xAAAAAA);
 }
