@@ -75,16 +75,12 @@ cl_program build_program(cl_context context, cl_device_id device_id, const char*
 	// first get size of log-text
 	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
 
-	// then allocate memory of that size
-	char* program_log = new char[log_size];
 	// get that memory
-	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, log_size + 1, program_log, NULL);
+	std::vector<char> program_log(log_size);
+	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, log_size + 1, program_log.data(), NULL);
 
 	// finally print it to the console
-	printf("%s\n", program_log);
-
-	// and free the memory
-	delete[] program_log;
+	printf("%s\n", program_log.data());
 
 	exit(1);
 }
