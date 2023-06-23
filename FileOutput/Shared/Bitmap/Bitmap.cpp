@@ -1,4 +1,7 @@
+// lib
 #include "Bitmap.h"
+
+// std
 #include <fstream>
 
 namespace Shared
@@ -48,7 +51,7 @@ namespace Shared
 		char* header_data = new char[header_size];
 		file.read(header_data, header_size);
 		m_header.reset();
-		m_header = std::make_shared<BitmapHeader>(reinterpret_cast<BitmapHeader*>(header_data));
+		m_header = std::shared_ptr<BitmapHeader>(reinterpret_cast<BitmapHeader*>(header_data));
 
 		// read content data
 		m_data.clear();

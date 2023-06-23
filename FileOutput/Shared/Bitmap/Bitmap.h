@@ -4,10 +4,10 @@
 // std
 #include <string>
 #include <vector>
-
-// bmp
-#include "Header.hpp"
 #include <memory>
+
+// lib
+#include "Header.hpp"
 
 namespace Shared
 {
