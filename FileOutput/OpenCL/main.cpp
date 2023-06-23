@@ -130,7 +130,7 @@ int main()
 	err = clSetKernelArg(kernel, 3, sizeof(cl_mem), &const_channels);
 
 	size_t global_size[] = { WIDTH, HEIGHT };
-	size_t local_size[] = { 64, 64 }; // divide work ino blocks of 64
+	size_t local_size[] = { 16, 16 }; // divide work ino blocks of 64
 
 	// this executes the kernel code
 	err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, global_size, local_size, 0, NULL, NULL);
