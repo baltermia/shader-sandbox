@@ -6,10 +6,8 @@
 // cl
 #include <CL/cl.h>
 
-// lib
-#include "Bitmap/Bitmap.h"
-
-using namespace Shared;
+// vcpkg
+#include "lodepng.h"
 
 constexpr int WIDTH = 640;		// number of pixels on x-axis;
 constexpr int HEIGHT = 360;		// number of pixels on y-axis;
@@ -101,7 +99,7 @@ int main()
 	cl_program program = build_program(context, device_id, "kernel.cl", err);
 
 	// create vector the size of the devices memory
-	std::vector<char> out(BYTES);
+	std::vector<unsigned char> out(BYTES);
 
 	// create output buffer in which the kernel writes and the host copies out of
 	cl_mem out_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BYTES, out.data(), &err);
@@ -131,7 +129,5 @@ int main()
 	clReleaseProgram(program);
 	clReleaseContext(context);
 
-	// create bitmap file
-	Bitmap bmp("~/test.bmp", WIDTH, HEIGHT, out, DEPTH);
-	bmp.write();
+	unsigned int error = lodepng::encode("Result.png", out, WIDTH, HEIGHT, LCT_RGB);
 }
