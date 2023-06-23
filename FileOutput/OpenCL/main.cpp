@@ -1,7 +1,15 @@
+//std
 #include <stdio.h>
-#include <CL/cl.h>
 #include <fstream>
 #include <vector>
+
+// cl
+#include <CL/cl.h>
+
+// lib
+#include "Bitmap/Bitmap.h"
+
+using namespace Shared;
 
 constexpr int WIDTH = 640;		// number of pixels on x-axis;
 constexpr int HEIGHT = 360;		// number of pixels on y-axis;
@@ -15,13 +23,10 @@ constexpr int DEPTH = 24;		// color depth in bits;
 /// <summary>
 /// Try and create a device. Prefferably GPU over CPU
 /// </summary>
-cl_device_id create_device()
+cl_device_id create_device(cl_int& err)
 {
 	cl_platform_id platform;
 	cl_device_id dev;
-
-	// to check for errors
-	int err;
 
 	// Identify platform
 	err = clGetPlatformIDs(1, &platform, NULL);
@@ -39,7 +44,7 @@ cl_device_id create_device()
 /// <summary>
 /// Create program from a file and compile it
 /// </summary>
-cl_program build_program(cl_context context, cl_device_id device_id, const char* filename)
+cl_program build_program(cl_context context, cl_device_id device_id, const char* filename, cl_int& err)
 {
 	// Load file
 	std::ifstream file(filename);
@@ -56,9 +61,6 @@ cl_program build_program(cl_context context, cl_device_id device_id, const char*
 	// read file into memory
 	std::vector<char> program_buffer(program_size);
 	file.read(program_buffer.data(), program_size);
-
-	// to check for errorss
-	int err;
 
 	const char* ptr = program_buffer.data();
 
@@ -84,25 +86,25 @@ cl_program build_program(cl_context context, cl_device_id device_id, const char*
 	// finally print it to the console
 	printf("%s\n", program_log.data());
 
-	exit(1);
+	return program;
 }
 
 int main()
 {
-	cl_device_id device_id = create_device();
-
 	// to check for errorss
 	int err;
 
+	cl_device_id device_id = create_device(err);
+
 	cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
 
-	cl_program program = build_program(context, device_id, "kernel.cl");
+	cl_program program = build_program(context, device_id, "kernel.cl", err);
 
-	// allocate heap memory the size of the devices memory
-	char* out = new char[BYTES];
+	// create vector the size of the devices memory
+	std::vector<char> out(BYTES);
 
 	// create output buffer in which the kernel writes and the host copies out of
-	cl_mem out_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BYTES, out, &err);
+	cl_mem out_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BYTES, out.data(), &err);
 
 	cl_command_queue command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
 
@@ -118,7 +120,7 @@ int main()
 	err = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
 
 	// read device memory into heap memory
-	err = clEnqueueReadBuffer(command_queue, out_buffer, CL_TRUE, 0, BYTES, out, 0, NULL, NULL);
+	err = clEnqueueReadBuffer(command_queue, out_buffer, CL_TRUE, 0, BYTES, out.data(), 0, NULL, NULL);
 
 	// Deallocate
 	clReleaseKernel(kernel);
@@ -128,4 +130,8 @@ int main()
 	clReleaseCommandQueue(command_queue);
 	clReleaseProgram(program);
 	clReleaseContext(context);
+
+	// create bitmap file
+	Bitmap bmp("~/test.bmp", WIDTH, HEIGHT, out, DEPTH);
+	bmp.write();
 }
