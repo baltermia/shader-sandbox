@@ -8,6 +8,8 @@ __kernel void apply_shader(__global unsigned char* data,
 
 	int i = (x + y * *height) * *channels;
 
+	char color = convert_char(0xFF * x / *width * y / *height);
+
 	for (int j = 0; j < *channels; ++j)
-		data[i + j] = convert_char(0xAA);
+		data[i + j] = color;
 }
