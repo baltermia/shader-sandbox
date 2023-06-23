@@ -11,6 +11,8 @@ namespace Shared
 
 	struct BitmapInformationHeader
 	{
+		BitmapInformationHeader() { }
+
 		BitmapInformationHeader(uint32_t width, uint32_t height, uint16_t depth = 24)
 			: width(width),
 			height(height),
@@ -32,6 +34,8 @@ namespace Shared
 
 	struct BitmapFileHeader
 	{
+		BitmapFileHeader() { }
+
 		BitmapFileHeader(uint32_t contentSize)
 			: fileSize(offset + contentSize)
 		{ }
@@ -48,6 +52,8 @@ namespace Shared
 
 	struct BitmapHeader
 	{
+		BitmapHeader() { }
+
 		BitmapHeader(uint32_t width, uint32_t height, uint16_t depth = 24)
 			: fileHeader(width, height, depth),
 			informationheader(width, height, depth)
