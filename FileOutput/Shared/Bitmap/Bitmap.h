@@ -46,12 +46,12 @@ namespace Shared
 		/// Tries to read data from the given path
 		/// </summary>
 		/// <returns></returns>
-		bool read();
+		void read();
 
 		/// <summary>
 		/// Tries to write the bitmap data to the given path
 		/// </summary>
-		bool write() const;
+		void write() const;
 
 		/// <summary>
 		/// Releases any data. The Bitmap-object cannot be used anymore

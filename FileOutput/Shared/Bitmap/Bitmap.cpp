@@ -32,7 +32,7 @@ namespace Shared
 		return m_header;
 	}
 
-	bool Bitmap::read()
+	void Bitmap::read()
 	{
 		std::ifstream file(m_path, std::ios_base::in);
 
@@ -59,13 +59,17 @@ namespace Shared
 		file.read(m_data.data(), data_size);
 
 		file.close();
-
-		return true;
 	}
 
-	bool Bitmap::write() const
+	void Bitmap::write() const
 	{
-		return true;
+		std::ofstream file(m_path, std::ios::binary);
+
+		m_header->write_to_file(file);
+
+		file.write((char*)m_data.data(), m_data.size());
+
+		file.close();
 	}
 
 	void Bitmap::release()
