@@ -7,6 +7,7 @@
 
 // bmp
 #include "Header.hpp"
+#include <memory>
 
 namespace Shared
 {
@@ -15,8 +16,8 @@ namespace Shared
 		static const std::string s_extension;
 
 		std::string m_path;
-		char* m_data;
-		BitmapHeader* m_header;
+		std::vector<char> m_data;
+		std::shared_ptr<BitmapHeader> m_header;
 
 	public:
 		/// <summary>
@@ -24,24 +25,22 @@ namespace Shared
 		/// </summary>
 		/// <param name="path">The path in the file-system</param>
 		/// <param name="data">Optional data that will be written as the bitmaps conent</param>
-		Bitmap(std::string path, uint32_t width, uint32_t height, char* data, uint16_t depth = 24);
+		Bitmap(std::string path, uint32_t width, uint32_t height, std::vector<char> data, uint16_t depth = 24);
 		Bitmap(std::string path);
-
-		~Bitmap();
 
 		/// <summary>
 		/// Sets the content-data. This does not write the data to the file system.
 		/// </summary>
-		void setData(char* data);
+		void setData(std::vector<char>& data);
 		/// <summary>
 		/// The content-data of the bitmap file
 		/// </summary>
-		const char* data() const;
+		const std::vector<char>& data() const;
 
 		/// <summary>
 		/// The header data of the bitmap file, generated from the given data
 		/// </summary>
-		const BitmapHeader* header() const;
+		std::shared_ptr<const BitmapHeader> header() const;
 
 		/// <summary>
 		/// Tries to read data from the given path
@@ -55,7 +54,7 @@ namespace Shared
 		bool write() const;
 
 		/// <summary>
-		/// Releases any data, same as if the destructor would be called. The Bitmap-object cannot be used anymore
+		/// Releases any data. The Bitmap-object cannot be used anymore
 		/// </summary>
 		void release();
 	};
