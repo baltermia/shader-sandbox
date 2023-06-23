@@ -24,19 +24,19 @@ constexpr int DEPTH = 24;		// color depth in bits;
 cl_device_id create_device(cl_int& err)
 {
 	cl_platform_id platform;
-	cl_device_id dev;
+	cl_device_id device_id;
 
 	// Identify platform
 	err = clGetPlatformIDs(1, &platform, NULL);
 
 	// Try to access a GPU
-	err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &dev, NULL);
+	err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device_id, NULL);
 
 	// If no GPU could be found, use CUP
 	if (err == CL_DEVICE_NOT_FOUND)
-		err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &dev, NULL);
+		err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
 
-	return dev;
+	return device_id;
 }
 
 /// <summary>
@@ -120,11 +120,13 @@ int main()
 	// read device memory into heap memory
 	err = clEnqueueReadBuffer(command_queue, out_buffer, CL_TRUE, 0, BYTES, out.data(), 0, NULL, NULL);
 
+	// run commands
+	clFlush(command_queue);
+
 	// Deallocate
+	clFinish(command_queue);
 	clReleaseKernel(kernel);
 	clReleaseMemObject(out_buffer);
-	clFlush(command_queue);
-	clFinish(command_queue);
 	clReleaseCommandQueue(command_queue);
 	clReleaseProgram(program);
 	clReleaseContext(context);
