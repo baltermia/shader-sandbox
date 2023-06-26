@@ -40,7 +40,8 @@ cl_program ConfigureCL::build_program(cl_context context, cl_device_id device_id
 	// build program
 	err = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
 
-	RETURN_IF_CL_ERROR(program);
+	if (err >= 0)
+		return program;
 
 	// if build is not successful, print the build-info to the console
 
