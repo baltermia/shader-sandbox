@@ -19,8 +19,9 @@ using namespace ConfigureCL;
 
 int main()
 {
-	cl_uint2 size{ 512, 512 };
+	cl_uint2 size { 512, 512 };
 	size_t depth = 32;
+	size_t bytes = size.x * size.y * 4;
 
 	// to check for errorss
 	cl_int err = 0;
@@ -31,31 +32,39 @@ int main()
 
 	cl_program program = build_program(context, device_id, PROGRAM_FILE, err);
 
-	cl_image_format image_format{ CL_RGBA, CL_FLOAT };
+	// image properties
+	cl_image_format image_format{ CL_RGBA, CL_UNORM_INT8 }; // == uchar, normalized is important, 4 channels
 	cl_image_desc image_desc{};
 	image_desc.image_type = CL_MEM_OBJECT_IMAGE2D;
 	image_desc.image_width = size.x;
 	image_desc.image_height = size.y;
-	image_desc.image_depth = 32;
+	image_desc.image_depth = depth;
 
+	// this allocates memory on the device
 	cl_mem image = clCreateImage(context, CL_MEM_WRITE_ONLY, &image_format, &image_desc, NULL, &err);
 	
 	cl_command_queue command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
 
 	cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &err);
 
+	// provide image
 	err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &image);
 
+	// global size are the images dimensions
 	size_t global_size[] = { size.x, size.y};
-	size_t local_size[] = { 16, 16 };
+	size_t local_size[] = { 16, 16 }; // blocks 
 
 	// this executes the kernel code
 	err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, global_size, local_size, 0, NULL, NULL);
 
-	size_t region = size.x * size.y;
-	std::vector<cl_float4> output_buffer(region);
-	size_t bytes = region * sizeof(cl_float) * depth / 8;
-	err = clEnqueueReadImage(command_queue, image, CL_TRUE, 0, &bytes, 0, 0, output_buffer.data(), 0, NULL, NULL);
+	size_t origin[3] = { 0 };
+	size_t region[3] = { size.x, size.y, 1 };
+
+	// reserve vector
+	std::vector<cl_uchar> output_buffer(bytes);
+	
+	// read device memory
+	err = clEnqueueReadImage(command_queue, image, CL_TRUE, origin, region, 0, 0, output_buffer.data(), 0, NULL, NULL);
 
 	// run commands
 	clFlush(command_queue);
@@ -67,16 +76,7 @@ int main()
 	clReleaseCommandQueue(command_queue);
 	clReleaseProgram(program);
 	clReleaseContext(context);
-
-	std::vector<unsigned char> out_chars(region * 4);
-
-	for (size_t i = 0; i < region; ++i) 
-	{
-		out_chars[i * 4]	 =	(char)(output_buffer[i].x * 255);
-		out_chars[i * 4 + 1] =	(char)(output_buffer[i].y * 255);
-		out_chars[i * 4 + 2] =	(char)(output_buffer[i].z * 255);
-		out_chars[i * 4 + 3] =	(char)(output_buffer[i].w * 255);
-	}
 	
-	unsigned int lode_err = lodepng::encode("Result.png", out_chars, size.x, size.y, LCT_RGBA);
+	// create png
+	unsigned int lode_err = lodepng::encode("Result.png", output_buffer.data(), size.x, size.y, LCT_RGBA);
 }
