@@ -1,4 +1,5 @@
 #include "ConfigureCL.h"
+#include "..\Common\ReadWriteFile.h"
 
 bool ConfigureCL::is_error(cl_int& cl_err)
 {
@@ -27,33 +28,10 @@ cl_device_id ConfigureCL::create_device(cl_int& err)
 	return device_id;
 }
 
-size_t read_file(std::string filename, std::vector<char>* dest)
-{
-	// Load file
-	std::ifstream file(filename);
-
-	// Seek to end of file.
-	file.seekg(0, std::ios_base::end);
-
-	// get file-size
-	size_t program_size = file.tellg();
-
-	// go to beginning
-	file.seekg(0);
-
-	// read file into memory
-	std::vector<char> program_buffer(program_size);
-	file.read(program_buffer.data(), program_size);
-
-	*dest = program_buffer;
-
-	return program_size;
-}
-
 cl_program ConfigureCL::build_program(cl_context context, cl_device_id device_id, std::string filename, cl_int& err)
 {
 	std::vector<char> program_buffer;
-	size_t program_size = read_file(filename, &program_buffer);
+	size_t program_size = Common::read_file(filename, &program_buffer);
 	const char* ptr = program_buffer.data();
 
 	// create new program with buffer

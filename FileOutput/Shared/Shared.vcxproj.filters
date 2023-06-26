@@ -19,6 +19,9 @@
     <Filter Include="Source Files\ConfigureCL">
       <UniqueIdentifier>{b3d26f8e-97db-4451-82fa-eaea4bdc8a3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{8b6f9eb1-4da1-4892-bca9-9e5006b5736e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -33,6 +36,9 @@
     <ClInclude Include="ConfigureCL\ConfigureCL.h">
       <Filter>Source Files\ConfigureCL</Filter>
     </ClInclude>
+    <ClInclude Include="Common\ReadWriteFile.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="ConfigureCL\ConfigureCL.cpp">
       <Filter>Source Files\ConfigureCL</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\ReadWriteFile.cpp">
+      <Filter>Source Files\Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
