@@ -1,15 +1,9 @@
-__kernel void apply_shader(__global unsigned char* data,
-						   __constant int* width,
-						   __constant int* height,
-						   __constant int* channels)
+__kernel void apply_shader(__write_only image2d_t image)
 {
-	int x = get_global_id(0);
-	int y = get_global_id(1);
+	int2 coords = { get_global_id(0), get_global_id(1) };
+	int2 size = { get_global_size(0), get_global_size(1) };
 
-	int i = (x + y * *height) * *channels;
+	float4 color = { 0.75f, 0.75f, 0.75f, 0.75f };
 
-	char color = convert_char(0xFF * x / *width * y / *height);
-
-	for (int j = 0; j < *channels; ++j)
-		data[i + j] = color;
+	write_imagef(image, coords, color);
 }

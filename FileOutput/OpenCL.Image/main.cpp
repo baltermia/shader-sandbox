@@ -17,19 +17,13 @@ using namespace ConfigureCL;
 #define PROGRAM_FILE	"kernel.cl"
 #define KERNEL_FUNC		"apply_shader"
 
-constexpr int WIDTH = 512;		// number of pixels on x-axis;
-constexpr int HEIGHT = 512;		// number of pixels on y-axis;
-constexpr int DEPTH = 24;		// color depth in bits;
-
-#define SIZE		HEIGHT * WIDTH	// total image pixels
-#define BITS		SIZE * DEPTH	// total image size in bits
-#define BYTES		BITS / 8		// total image size in bytes
-#define CHANNELS	DEPTH / 8		// number of bytes per color
-
 int main()
 {
+	cl_uint2 size{ 512, 512 };
+	size_t depth = 32;
+
 	// to check for errorss
-	int err;
+	cl_int err = 0;
 
 	cl_device_id device_id = create_device(err);
 
@@ -37,42 +31,31 @@ int main()
 
 	cl_program program = build_program(context, device_id, PROGRAM_FILE, err);
 
-	// create vector the size of the devices memory
-	std::vector<unsigned char> out(BYTES);
+	cl_image_format image_format{ CL_RGBA, CL_FLOAT };
+	cl_image_desc image_desc{};
+	image_desc.image_type = CL_MEM_OBJECT_IMAGE2D;
+	image_desc.image_width = size.x;
+	image_desc.image_height = size.y;
+	image_desc.image_depth = 32;
 
-	// create output buffer in which the kernel writes and the host copies out of
-	cl_mem out_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BYTES, out.data(), &err);
-
-	cl_mem const_width = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, &err);
-	cl_mem const_height = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, &err);
-	cl_mem const_channels = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, &err);
-
-	cl_command_queue command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
-
-	cl_int width = WIDTH;
-	cl_int height = HEIGHT;
-	cl_int channels = CHANNELS;
+	cl_mem image = clCreateImage(context, CL_MEM_WRITE_ONLY, &image_format, &image_desc, NULL, &err);
 	
-	err = clEnqueueWriteBuffer(command_queue, const_width, CL_TRUE, 0, sizeof(cl_int), &width, 0, NULL, NULL);
-	err = clEnqueueWriteBuffer(command_queue, const_height, CL_TRUE, 0, sizeof(cl_int), &height, 0, NULL, NULL);
-	err = clEnqueueWriteBuffer(command_queue, const_channels, CL_TRUE, 0, sizeof(cl_int), &channels, 0, NULL, NULL);
+	cl_command_queue command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &err);
 
 	cl_kernel kernel = clCreateKernel(program, KERNEL_FUNC, &err);
 
-	// set output-buffer as argument (index 0)
-	err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &out_buffer);
-	err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &const_width);
-	err = clSetKernelArg(kernel, 2, sizeof(cl_mem), &const_height);
-	err = clSetKernelArg(kernel, 3, sizeof(cl_mem), &const_channels);
+	err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &image);
 
-	size_t global_size[] = { WIDTH, HEIGHT };
-	size_t local_size[] = { 16, 16 }; // divide work ino blocks of 64
+	size_t global_size[] = { size.x, size.y};
+	size_t local_size[] = { 16, 16 };
 
 	// this executes the kernel code
 	err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, global_size, local_size, 0, NULL, NULL);
 
-	// read device memory into heap memory
-	err = clEnqueueReadBuffer(command_queue, out_buffer, CL_TRUE, 0, BYTES, out.data(), 0, NULL, NULL);
+	size_t region = size.x * size.y;
+	std::vector<cl_float4> output_buffer(region);
+	size_t bytes = region * sizeof(cl_float) * depth / 8;
+	err = clEnqueueReadImage(command_queue, image, CL_TRUE, 0, &bytes, 0, 0, output_buffer.data(), 0, NULL, NULL);
 
 	// run commands
 	clFlush(command_queue);
@@ -80,10 +63,20 @@ int main()
 	// Deallocate
 	clFinish(command_queue);
 	clReleaseKernel(kernel);
-	clReleaseMemObject(out_buffer);
+	clReleaseMemObject(image);
 	clReleaseCommandQueue(command_queue);
 	clReleaseProgram(program);
 	clReleaseContext(context);
 
-	unsigned int error = lodepng::encode("Result.png", out, WIDTH, HEIGHT, LCT_RGB);
+	std::vector<unsigned char> out_chars(region * 4);
+
+	for (size_t i = 0; i < region; ++i) 
+	{
+		out_chars[i * 4]	 =	(char)(output_buffer[i].x * 255);
+		out_chars[i * 4 + 1] =	(char)(output_buffer[i].y * 255);
+		out_chars[i * 4 + 2] =	(char)(output_buffer[i].z * 255);
+		out_chars[i * 4 + 3] =	(char)(output_buffer[i].w * 255);
+	}
+	
+	unsigned int lode_err = lodepng::encode("Result.png", out_chars, size.x, size.y, LCT_RGBA);
 }
