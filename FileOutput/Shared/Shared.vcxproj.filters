@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Bitmap">
       <UniqueIdentifier>{d23d1213-0788-49f5-85e8-024896900f33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ConfigureCL">
+      <UniqueIdentifier>{b3d26f8e-97db-4451-82fa-eaea4bdc8a3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -27,6 +30,9 @@
     <ClInclude Include="Bitmap\Bitmap.h">
       <Filter>Source Files\Bitmap</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigureCL\ConfigureCL.h">
+      <Filter>Source Files\ConfigureCL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -37,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="Bitmap\Header.hpp">
       <Filter>Source Files\Bitmap</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigureCL\ConfigureCL.cpp">
+      <Filter>Source Files\ConfigureCL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
