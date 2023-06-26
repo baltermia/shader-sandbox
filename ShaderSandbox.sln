@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FileOutput", "FileOutput", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCL", "FileOutput\OpenCL\OpenCL.vcxproj", "{8DF8BE3F-BF93-4E28-B19B-A465136409F7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "FileOutput\Shared\Shared.vcxproj", "{4179C0E6-4289-40D5-AD93-5FB2E36EB9CD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "Shared\Shared.vcxproj", "{4179C0E6-4289-40D5-AD93-5FB2E36EB9CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,7 +50,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{99B6DD27-42D2-4ACE-8F9B-F4A35BE23EFB} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
 		{8DF8BE3F-BF93-4E28-B19B-A465136409F7} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
-		{4179C0E6-4289-40D5-AD93-5FB2E36EB9CD} = {EE098F93-07AE-4D13-B8DD-F085AEFA3C22}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BDBD7309-7182-4AB3-A1D2-9FA62C45C42D}
