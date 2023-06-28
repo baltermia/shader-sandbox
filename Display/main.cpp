@@ -5,7 +5,10 @@
 // std
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void callback_framebuffer_size_changed(GLFWwindow* window, int width, int height);
+
+void frame_process_input(GLFWwindow* window);
+void frame_render();
 
 int main()
 {
@@ -26,6 +29,7 @@ int main()
 	// explicitly use core version (so no major backwards-compatibility)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	// set property specific on macos systems (note that opengl 4.6 doesnt work on macos, so make sure to downgrade it above)
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -62,13 +66,17 @@ int main()
 	glViewport(0, 0, width, height);
 
 	// create callback which changes the gl-viewport automatically when the glfw-window gets resized
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, callback_framebuffer_size_changed);
 
 	/* --------------------------------- */
 	/* Render-Loop */
 
 	while (!glfwWindowShouldClose(window))
 	{
+		frame_process_input(window);
+
+		frame_render();
+
 		// double buffer
 		glfwSwapBuffers(window);
 
@@ -85,7 +93,28 @@ int main()
 
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+/* Callbacks */
+
+void callback_framebuffer_size_changed(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+
+/* ------------------------------------- */
+/* Functions that get called for each frame */
+
+void frame_process_input(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+}
+
+void frame_render()
+{
+	// color that gets replaced with
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	// clear all colors
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+/* ------------------------------------- */
