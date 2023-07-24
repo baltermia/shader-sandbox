@@ -141,7 +141,7 @@ void frame_render(GLuint program_id, GLuint vertex_array_object)
 	glBindVertexArray(vertex_array_object);
 
 	// draw
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 }
 
@@ -151,9 +151,12 @@ void create_triangle(GLuint program_id)
 	// Write Memory to GPU
 	float vertices[] =
 	{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f
+		-1.f, -1.f, 0.f,
+		1.f, 1.f, 0.f,
+		1.f, -1.f, 0.f,
+		-1.f, -1.f, 0.f,
+		1.f, 1.f, 0.f,
+		-1.f, 1.f, 0.f,
 	};
 
 	// vbo
@@ -167,9 +170,6 @@ void create_triangle(GLuint program_id)
 	// Load Vertex Shader
 	bool success;
 
-	//GLuint vertex_shader;
-	//success = help::try_load_shader("triangle.vert", &vertex_shader, GL_VERTEX_SHADER);
-
 	/* ------------------------------------- */
 	// Load Fragment Shader
 	GLuint fragmet_shader;
@@ -178,14 +178,12 @@ void create_triangle(GLuint program_id)
 	/* ------------------------------------- */
 	// Load Shaders into Program
 
-	//glAttachShader(program_id, vertex_shader);
 	glAttachShader(program_id, fragmet_shader);
 	glLinkProgram(program_id);
 
 	success = help::check_linking_success(program_id);
 
 	// Delete shadeers after linking
-	//glDeleteShader(vertex_shader);
 	glDeleteShader(fragmet_shader);
 
 	/* ------------------------------------- */
