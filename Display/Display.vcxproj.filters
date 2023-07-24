@@ -16,18 +16,16 @@
     <Filter Include="Source Files\gl">
       <UniqueIdentifier>{79e2f719-fee7-4353-9a12-28084dd954ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\cl">
-      <UniqueIdentifier>{c1d29597-0a95-4aa9-9331-54017b98ad5d}</UniqueIdentifier>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{e05a16b4-99bb-44d6-a21e-145489d0a0b9}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="kernel.cl">
-      <Filter>Source Files\cl</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\Helper.cpp">
+      <Filter>Source Files\Helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,5 +35,13 @@
     <ClInclude Include="glad\include\KHR\khrplatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Helper\Helper.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

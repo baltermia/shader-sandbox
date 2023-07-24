@@ -5,10 +5,15 @@
 // std
 #include <iostream>
 
+// lib
+#include "Helper/Helper.h"
+
 void callback_framebuffer_size_changed(GLFWwindow* window, int width, int height);
 
 void frame_process_input(GLFWwindow* window);
-void frame_render();
+void frame_render(GLuint program_id, GLuint vertex_array_object);
+
+void create_triangle(GLuint program_id);
 
 int main()
 {
@@ -67,6 +72,21 @@ int main()
 
 	// create callback which changes the gl-viewport automatically when the glfw-window gets resized
 	glfwSetFramebufferSizeCallback(window, callback_framebuffer_size_changed);
+	
+	/* --------------------------------- */
+	/* Create Triangle */
+
+	GLuint gl_program = glCreateProgram();
+
+	// vao
+	GLuint vertex_array_object;
+	glGenVertexArrays(1, &vertex_array_object);
+
+	glBindVertexArray(vertex_array_object);
+
+	create_triangle(gl_program);
+
+	glBindVertexArray(0);
 
 	/* --------------------------------- */
 	/* Render-Loop */
@@ -75,7 +95,7 @@ int main()
 	{
 		frame_process_input(window);
 
-		frame_render();
+		frame_render(gl_program, vertex_array_object);
 
 		// double buffer
 		glfwSwapBuffers(window);
@@ -109,12 +129,72 @@ void frame_process_input(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void frame_render()
+void frame_render(GLuint program_id, GLuint vertex_array_object)
 {
 	// color that gets replaced with
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	// clear all colors
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	// use vao
+	glUseProgram(program_id);
+	glBindVertexArray(vertex_array_object);
+
+	// draw
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(0);
+}
+
+void create_triangle(GLuint program_id)
+{
+	/* ------------------------------------- */
+	// Write Memory to GPU
+	float vertices[] =
+	{
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f,  0.5f, 0.0f
+	};
+
+	// vbo
+	GLuint vertex_buffer_object;
+	glGenBuffers(1, &vertex_buffer_object);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	/* ------------------------------------- */
+	// Load Vertex Shader
+	bool success;
+
+	//GLuint vertex_shader;
+	//success = help::try_load_shader("triangle.vert", &vertex_shader, GL_VERTEX_SHADER);
+
+	/* ------------------------------------- */
+	// Load Fragment Shader
+	GLuint fragmet_shader;
+	success = help::try_load_shader("shader.frag", &fragmet_shader, GL_FRAGMENT_SHADER);
+
+	/* ------------------------------------- */
+	// Load Shaders into Program
+
+	//glAttachShader(program_id, vertex_shader);
+	glAttachShader(program_id, fragmet_shader);
+	glLinkProgram(program_id);
+
+	success = help::check_linking_success(program_id);
+
+	// Delete shadeers after linking
+	//glDeleteShader(vertex_shader);
+	glDeleteShader(fragmet_shader);
+
+	/* ------------------------------------- */
+	// Vertex-Linking Attributes
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)NULL);
+	glEnableVertexAttribArray(0);
+
+	/* ------------------------------------- */
 }
 
 /* ------------------------------------- */

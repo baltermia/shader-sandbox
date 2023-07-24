@@ -152,14 +152,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="kernel.cl" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="Helper\Helper.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glad\include\glad\glad.h" />
     <ClInclude Include="glad\include\KHR\khrplatform.h" />
+    <ClInclude Include="Helper\Helper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
