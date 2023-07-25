@@ -94,6 +94,10 @@ int main()
 	
 	init_shaders();
 
+	// Get uniform locations
+	uni_seconds = glGetUniformLocation(program, "seconds");
+	uni_window_size = glGetUniformLocation(program, "window_size");
+
 	/* --------------------------------- */
 	/* Render-Loop */
 
@@ -144,6 +148,13 @@ void frame_render()
 {
 	// use vao
 	glUseProgram(program);
+
+	// uniforms
+	GLuint seconds = glGetUniformLocation(program, "seconds");
+	GLuint window_size = glGetUniformLocation(program, "window_size");
+	glUniform1f(seconds, glfwGetTime());
+	glUniform2ui(window_size, width, height);
+
 	glBindVertexArray(vao);
 
 	// draw
