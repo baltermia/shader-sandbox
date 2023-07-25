@@ -94,10 +94,6 @@ int main()
 	
 	init_shaders();
 
-	// Get uniform locations
-	uni_seconds = glGetUniformLocation(program, "seconds");
-	uni_window_size = glGetUniformLocation(program, "window_size");
-
 	/* --------------------------------- */
 	/* Render-Loop */
 

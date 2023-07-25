@@ -7,5 +7,15 @@ out vec4 FragColor;
 
 void main()
 {
-	FragColor = vec4(vec3(1), 1);
+    float smallerSize = min(window_size.x, window_size.y);
+    
+    vec2 uv = (gl_FragCoord.xy * 2 - window_size.xy) / smallerSize;
+  
+    float dist = sqrt(pow(uv.x, 2) + pow(uv.y, 2));
+    
+    float col = sin(dist * seconds * 4);
+    
+    col = round(col * 1.5);
+
+    FragColor = vec4(vec3(col), 1);
 }
