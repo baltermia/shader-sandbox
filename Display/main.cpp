@@ -23,7 +23,6 @@ GLuint program,
 	   vao,
 	   ebo,
 	   vbo,
-	   window_size_uniform,
 	   width,
 	   height;
 
@@ -205,9 +204,6 @@ void init_shaders()
 	// Load Fragment Shader
 	GLuint fragment_shader;
 	success = help::try_load_shader("shader.frag", &fragment_shader, GL_FRAGMENT_SHADER);
-
-	// Create fragment shader unfirom
-	window_size_uniform = glGetUniformLocation(fragment_shader, "window_size");
 
 	// Load Shader into Program
 
