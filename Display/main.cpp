@@ -4,21 +4,33 @@
 
 // std
 #include <iostream>
+#include <vector>
 
 // lib
 #include "Helper/Helper.h"
 
 void callback_framebuffer_size_changed(GLFWwindow* window, int width, int height);
 
-void frame_process_input(GLFWwindow* window);
-void frame_render(GLuint program_id, GLuint vertex_array_object);
+void frame_process_input();
+void frame_render();
 
-void create_triangle(GLuint program_id);
+void init_memory();
+void init_shaders();
+
+GLFWwindow* window;
+
+GLuint program,
+	   vao,
+	   ebo,
+	   vbo,
+	   window_size_uniform,
+	   width,
+	   height;
 
 int main()
 {
-	size_t width = 800;
-	size_t height = 600;
+	width = 800;
+	height = 600;
 
 	/* --------------------------------- */
 	/* Initialize GLFW */
@@ -42,7 +54,7 @@ int main()
 	/* --------------------------------- */
 	/* Create Window Object */
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "Shader Sandbox", NULL, NULL);
+	window = glfwCreateWindow(width, height, "Shader Sandbox", NULL, NULL);
 
 	if (window == NULL)
 	{
@@ -72,30 +84,25 @@ int main()
 
 	// create callback which changes the gl-viewport automatically when the glfw-window gets resized
 	glfwSetFramebufferSizeCallback(window, callback_framebuffer_size_changed);
-	
+
+		
 	/* --------------------------------- */
-	/* Create Triangle */
+	/* Create opengl program */
 
-	GLuint gl_program = glCreateProgram();
+	program = glCreateProgram();
 
-	// vao
-	GLuint vertex_array_object;
-	glGenVertexArrays(1, &vertex_array_object);
-
-	glBindVertexArray(vertex_array_object);
-
-	create_triangle(gl_program);
-
-	glBindVertexArray(0);
+	init_memory();
+	
+	init_shaders();
 
 	/* --------------------------------- */
 	/* Render-Loop */
 
 	while (!glfwWindowShouldClose(window))
 	{
-		frame_process_input(window);
+		frame_process_input();
 
-		frame_render(gl_program, vertex_array_object);
+		frame_render();
 
 		// double buffer
 		glfwSwapBuffers(window);
@@ -106,7 +113,12 @@ int main()
 
 	/* --------------------------------- */
 	/* Clean Up / Deallocate */
+	glDeleteBuffers(1, &ebo);
+	glDeleteBuffers(1, &vbo);
 
+	glDeleteVertexArrays(1, &vao);
+
+	glDeleteProgram(program);
 	glfwTerminate();
 
 	/* --------------------------------- */
@@ -123,76 +135,88 @@ void callback_framebuffer_size_changed(GLFWwindow* window, int width, int height
 /* ------------------------------------- */
 /* Functions that get called for each frame */
 
-void frame_process_input(GLFWwindow* window)
+void frame_process_input()
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void frame_render(GLuint program_id, GLuint vertex_array_object)
+void frame_render()
 {
-	// color that gets replaced with
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	// clear all colors
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	// use vao
-	glUseProgram(program_id);
-	glBindVertexArray(vertex_array_object);
+	glUseProgram(program);
+	glBindVertexArray(vao);
 
 	// draw
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void create_triangle(GLuint program_id)
+void init_memory()
 {
+	// vao
+	glGenVertexArrays(1, &vao);
+
+	glBindVertexArray(vao);
+
 	/* ------------------------------------- */
 	// Write Memory to GPU
-	float vertices[] =
+	std::vector<vec3f> vertices =
 	{
-		-1.f, -1.f, 0.f,
-		1.f, 1.f, 0.f,
-		1.f, -1.f, 0.f,
-		-1.f, -1.f, 0.f,
-		1.f, 1.f, 0.f,
-		-1.f, 1.f, 0.f,
+		{ -1, 1 },	// top left
+		{ 1, 1 },	// top right
+		{ -1, -1 },	// bottom left
+		{ 1, -1 }	// bottom right
 	};
 
+	std::vector<vec3ui> indices =
+	{
+		{ 0, 1, 2 },	// first triangle
+		{ 1, 2, 3 }		// second triangle
+	};
+
+	// ebo
+	glGenBuffers(1, &ebo);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.front()), indices.data(), GL_STATIC_DRAW);
+
 	// vbo
-	GLuint vertex_buffer_object;
-	glGenBuffers(1, &vertex_buffer_object);
+	glGenBuffers(1, &vbo);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	/* ------------------------------------- */
-	// Load Vertex Shader
-	bool success;
-
-	/* ------------------------------------- */
-	// Load Fragment Shader
-	GLuint fragmet_shader;
-	success = help::try_load_shader("shader.frag", &fragmet_shader, GL_FRAGMENT_SHADER);
-
-	/* ------------------------------------- */
-	// Load Shaders into Program
-
-	glAttachShader(program_id, fragmet_shader);
-	glLinkProgram(program_id);
-
-	success = help::check_linking_success(program_id);
-
-	// Delete shadeers after linking
-	glDeleteShader(fragmet_shader);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), GL_STATIC_DRAW);
 
 	/* ------------------------------------- */
 	// Vertex-Linking Attributes
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)NULL);
+	glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f), (void*)NULL);
 	glEnableVertexAttribArray(0);
 
-	/* ------------------------------------- */
+	// unbind
+	glBindVertexArray(0);
+}
+
+void init_shaders()
+{
+	bool success;
+
+	// Load Fragment Shader
+	GLuint fragment_shader;
+	success = help::try_load_shader("shader.frag", &fragment_shader, GL_FRAGMENT_SHADER);
+
+	// Create fragment shader unfirom
+	window_size_uniform = glGetUniformLocation(fragment_shader, "window_size");
+
+	// Load Shader into Program
+
+	glAttachShader(program, fragment_shader);
+	glLinkProgram(program);
+
+	success = help::check_linking_success(program);
+
+	glDeleteShader(fragment_shader);
 }
 
 /* ------------------------------------- */
