@@ -7,15 +7,12 @@ out vec4 FragColor;
 
 void main()
 {
-    float smallerSize = min(window_size.x, window_size.y);
-    
-    vec2 uv = (gl_FragCoord.xy * 2 - window_size.xy) / smallerSize;
-  
-    float dist = sqrt(pow(uv.x, 2) + pow(uv.y, 2));
-    
-    float col = sin(dist * seconds * 4);
-    
-    col = round(col * 1.5);
+     // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = gl_FragCoord.xy / window_size.xy;
 
-    FragColor = vec4(vec3(col), 1);
+    // Time varying pixel color
+    vec3 col = 0.5 + 0.5 * cos(seconds + uv.xyx + vec3(0,2,4));
+
+    // Output to screen
+    FragColor = vec4(col,1.0);
 }
