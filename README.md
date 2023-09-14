@@ -3,6 +3,8 @@
   C++ CUDA &amp; OpenCL implementations for a shader sandbox
 </div>
 
+Inspiration taken from [Inigo Quilez'](https://iquilezles.org/) awesome [Shadertoy](https://www.shadertoy.com/).
+
 ## Requirements
 1. [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) (also contains OpenCL)
 
